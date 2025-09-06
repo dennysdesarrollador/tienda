@@ -1,92 +1,94 @@
 
-import { useState } from "react"
-import { supabase } from "../lib/supabaseClient"
-import { useNavigate } from "react-router-dom"
 
-function Login() {
+import { useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { supabase } from "../lib/supabaseClient"
+
+export default function Login() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const navigate = useNavigate()
 
   const handleLogin = async (e) => {
     e.preventDefault()
     setError("")
+    setLoading(true)
 
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     })
 
-    if (error) {
-      setError(error.message)
-    } else {
-      navigate("/") // redirige a productos
-    }
-  }
+    setLoading(false)
 
-  const handleRegister = async () => {
-    setError("")
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-    })
     if (error) {
-      setError(error.message)
+      setError("Credenciales inválidas. Intenta nuevamente.")
     } else {
-      alert("✅ Revisa tu correo para confirmar tu cuenta")
+      navigate("/dashboard")
     }
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-indigo-600 to-purple-600">
-      <div className="bg-white shadow-2xl rounded-2xl p-10 w-full max-w-md">
-        <h1 className="text-3xl font-bold text-center mb-6 text-indigo-600">TIENDA - Login</h1>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-600 to-purple-700">
+      <div className="bg-white shadow-2xl rounded-2xl w-full max-w-md p-8">
+        <div className="text-center mb-6">
+          <h1 className="text-3xl font-bold text-gray-800">🛒 Sistema de Ventas</h1>
+          <p className="text-gray-500">Inicia sesión para continuar</p>
+        </div>
 
         {error && (
-          <div className="bg-red-100 text-red-700 p-2 rounded mb-4">{error}</div>
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded mb-4">
+            {error}
+          </div>
         )}
 
-        <form onSubmit={handleLogin} className="space-y-4">
-          <input
-            type="email"
-            placeholder="Correo electrónico"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500"
-            required
-          />
-          <input
-            type="password"
-            placeholder="Contraseña"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500"
-            required
-          />
+        <form onSubmit={handleLogin} className="space-y-5">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Correo electrónico
+            </label>
+            <input
+              type="email"
+              className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="ejemplo@correo.com"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Contraseña
+            </label>
+            <input
+              type="password"
+              className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="********"
+              required
+            />
+          </div>
+
           <button
             type="submit"
-            className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition"
+            disabled={loading}
+            className="w-full bg-indigo-600 text-white py-2 rounded-lg font-semibold hover:bg-indigo-700 transition disabled:opacity-50"
           >
-            Iniciar Sesión
+            {loading ? "Ingresando..." : "Iniciar sesión"}
           </button>
         </form>
 
-        <hr className="my-6" />
-
-        <button
-          onClick={handleRegister}
-          className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition"
-        >
-          Registrarse
-        </button>
-
-        <p className="text-center text-gray-500 text-sm mt-4">
-          © {new Date().getFullYear()} Sistema de Ventas e Inventario
+        <p className="mt-6 text-center text-sm text-gray-500">
+          © {new Date().getFullYear()} Tienda — Todos los derechos reservados
         </p>
       </div>
     </div>
   )
 }
 
-export default Login
+
+
